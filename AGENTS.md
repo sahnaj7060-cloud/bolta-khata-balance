@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- Khata entries and the chosen language are stored in the browser's localStorage (no backend) — keeps the app sign-in free and offline-friendly.
+- Speech-to-entry parsing lives in pure functions in `src/lib/khata.ts`, covered by `src/lib/khata.test.ts` — keep parsing UI-free so it stays testable.
+- Voice input uses the browser Web Speech API (`hi-IN` / `en-IN`) via `src/hooks/use-speech.ts`; always keep the typed-entry fallback for browsers without it.
