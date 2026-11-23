@@ -82,6 +82,8 @@ export function useSpeech(lang: string, onFinal: (text: string) => void) {
   const permRef = useRef<PermissionState | "unknown">("unknown");
   const lastTapRef = useRef(0);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  /** Set when a recording is cancelled, so half-heard words are thrown away. */
+  const discardRef = useRef(false);
 
   const clearTimers = () => {
     timersRef.current.forEach(clearTimeout);
@@ -113,7 +115,10 @@ export function useSpeech(lang: string, onFinal: (text: string) => void) {
 
     // Switching apps or locking the phone mid-recording can leave the mic stuck.
     const onVisibility = () => {
-      if (document.visibilityState === "hidden") recRef.current?.abort();
+      if (document.visibilityState === "hidden" && recRef.current) {
+        discardRef.current = true;
+        recRef.current.abort();
+      }
     };
     document.addEventListener("visibilitychange", onVisibility);
 
@@ -124,6 +129,22 @@ export function useSpeech(lang: string, onFinal: (text: string) => void) {
       clearTimers();
       recRef.current?.abort();
     };
+  }, []);
+
+  // Switching language: end the current recording and clear a message meant for the old language.
+  useEffect(() => {
+    if (recRef.current) {
+      discardRef.current = true;
+      recRef.current.abort();
+    }
+    setError(null);
+  }, [lang]);
+
+  /** End the recording without adding anything. */
+  const cancel = useCallback(() => {
+    if (!recRef.current) return;
+    discardRef.current = true;
+    recRef.current.abort();
   }, []);
 
   const stop = useCallback(() => {
@@ -185,7 +206,7 @@ export function useSpeech(lang: string, onFinal: (text: string) => void) {
       if (recRef.current === rec) recRef.current = null;
       setPhase("idle");
       // Safari (and sometimes Android) end without marking a result final — use what we heard.
-      if (!delivered && latest) deliver(latest);
+      if (!delivered && latest && !discardRef.current) deliver(latest);
       if (!delivered) setInterim("");
     };
 
@@ -242,6 +263,7 @@ export function useSpeech(lang: string, onFinal: (text: string) => void) {
     rec.onend = finish;
 
     recRef.current = rec;
+    discardRef.current = false;
     setError(null);
     setInterim("");
     setPhase("starting");
@@ -281,6 +303,7 @@ export function useSpeech(lang: string, onFinal: (text: string) => void) {
     problem,
     start,
     stop,
+    cancel,
     toggle,
     clearError: () => setError(null),
   };

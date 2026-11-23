@@ -56,7 +56,7 @@ export function ManualEntryDialog({ open, onOpenChange, onAdd, t }: Props) {
               type="button"
               disabled={!valid}
               onClick={() => submit("credit")}
-              className="h-16 rounded-2xl bg-credit text-xl font-bold text-primary-foreground transition active:scale-95 disabled:opacity-40"
+              className="h-16 touch-manipulation rounded-2xl bg-credit text-xl font-bold text-primary-foreground transition active:scale-95 disabled:opacity-40"
             >
               {t.addCredit}
             </button>
@@ -64,7 +64,7 @@ export function ManualEntryDialog({ open, onOpenChange, onAdd, t }: Props) {
               type="button"
               disabled={!valid}
               onClick={() => submit("payment")}
-              className="h-16 rounded-2xl bg-payment text-xl font-bold text-primary-foreground transition active:scale-95 disabled:opacity-40"
+              className="h-16 touch-manipulation rounded-2xl bg-payment text-xl font-bold text-primary-foreground transition active:scale-95 disabled:opacity-40"
             >
               {t.addPayment}
             </button>

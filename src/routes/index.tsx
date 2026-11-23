@@ -176,7 +176,11 @@ function Index() {
 
           <button
             type="button"
-            onClick={() => setManualOpen(true)}
+            onClick={() => {
+              // Don't keep listening behind the typing window.
+              speech.cancel();
+              setManualOpen(true);
+            }}
             className="mt-5 flex h-14 w-full touch-manipulation items-center justify-center gap-2.5 rounded-2xl border-2 border-border bg-secondary text-lg font-bold text-secondary-foreground transition active:scale-[0.98]"
           >
             <Keyboard className="h-6 w-6" /> {t.typeInstead}
