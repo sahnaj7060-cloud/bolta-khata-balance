@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ArrowDownLeft, ArrowUpRight, Keyboard, Trash2, X } from "lucide-react";
+import { AlertTriangle, ArrowDownLeft, ArrowUpRight, Keyboard, RotateCcw, Trash2, X } from "lucide-react";
 
 import { MicButton } from "@/components/khata/MicButton";
 import { ManualEntryDialog } from "@/components/khata/ManualEntryDialog";
 import { useKhata } from "@/hooks/use-khata";
 import { useSpeech } from "@/hooks/use-speech";
 import { STRINGS, type Lang } from "@/lib/i18n";
+import { canRetry } from "@/lib/speech-support";
 import {
   calculateTotals,
   formatRupees,
@@ -80,18 +81,25 @@ function Index() {
     });
   };
 
-  const status = speech.listening
-    ? t.listening
-    : !speech.supported || speech.error === "unsupported"
-      ? t.noSupport
-      : speech.error === "denied"
-        ? t.micDenied
-        : notUnderstood
-          ? t.notUnderstood
-          : t.tapToSpeak;
+  const help = speech.problem ? t.voiceHelp[speech.problem] : null;
 
-  const statusIsWarning =
-    !speech.listening && (!speech.supported || speech.error !== null || notUnderstood);
+  const status =
+    speech.phase === "listening"
+      ? t.listening
+      : speech.phase === "starting"
+        ? t.starting
+        : help
+          ? help.title
+          : notUnderstood
+            ? t.notUnderstood
+            : t.tapToSpeak;
+
+  const statusIsWarning = speech.phase === "idle" && (help !== null || notUnderstood);
+
+  const pressMic = () => {
+    setNotUnderstood(false);
+    speech.toggle();
+  };
 
   return (
     <div className="mx-auto flex min-h-screen max-w-xl flex-col">
@@ -126,13 +134,9 @@ function Index() {
       <section className="-mt-16 px-4">
         <div className="flex flex-col items-center rounded-[2rem] bg-card px-5 pb-6 pt-4 shadow-card">
           <MicButton
-            listening={speech.listening}
-            onPress={() => {
-              setNotUnderstood(false);
-              if (speech.listening) speech.stop();
-              else speech.start();
-            }}
-            label={t.tapToSpeak}
+            phase={speech.phase}
+            onPress={pressMic}
+            label={speech.listening ? t.tapToStop : t.tapToSpeak}
           />
           <p
             className={cn(
@@ -143,7 +147,26 @@ function Index() {
           >
             {status}
           </p>
-          {speech.interim ? (
+          {help && speech.phase === "idle" ? (
+            <div
+              role="alert"
+              className="mt-3 w-full rounded-2xl border-2 border-credit/30 bg-credit-soft px-4 py-3 text-foreground"
+            >
+              <p className="flex items-start gap-2 text-lg leading-snug">
+                <AlertTriangle className="mt-1 h-5 w-5 shrink-0 text-credit" />
+                <span>{help.hint}</span>
+              </p>
+              {speech.problem && canRetry(speech.problem) && (
+                <button
+                  type="button"
+                  onClick={pressMic}
+                  className="mt-3 flex h-12 w-full touch-manipulation items-center justify-center gap-2 rounded-xl bg-primary text-lg font-bold text-primary-foreground active:scale-[0.98]"
+                >
+                  <RotateCcw className="h-5 w-5" /> {t.tryAgain}
+                </button>
+              )}
+            </div>
+          ) : speech.interim ? (
             <p className="mt-2 rounded-xl bg-muted px-4 py-2 text-center text-lg">
               <span className="text-muted-foreground">{t.youHeard}</span> “{speech.interim}”
             </p>
@@ -154,7 +177,7 @@ function Index() {
           <button
             type="button"
             onClick={() => setManualOpen(true)}
-            className="mt-5 flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-border bg-secondary text-lg font-bold text-secondary-foreground transition active:scale-[0.98]"
+            className="mt-5 flex h-14 w-full touch-manipulation items-center justify-center gap-2.5 rounded-2xl border-2 border-border bg-secondary text-lg font-bold text-secondary-foreground transition active:scale-[0.98]"
           >
             <Keyboard className="h-6 w-6" /> {t.typeInstead}
           </button>

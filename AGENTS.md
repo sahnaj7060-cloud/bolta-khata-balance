@@ -34,3 +34,5 @@ use the editor.
 - Khata entries and the chosen language are stored in the browser's localStorage (no backend) — keeps the app sign-in free and offline-friendly.
 - Speech-to-entry parsing lives in pure functions in `src/lib/khata.ts`, covered by `src/lib/khata.test.ts` — keep parsing UI-free so it stays testable.
 - Voice input uses the browser Web Speech API (`hi-IN` / `en-IN`) via `src/hooks/use-speech.ts`; always keep the typed-entry fallback for browsers without it.
+- Recognition must start synchronously inside the tap handler (iOS Safari gesture rule), and a non-final transcript is used when the session ends — Safari/Android often never mark results final.
+- Platform detection and speech-error → help-message mapping live in pure functions in `src/lib/speech-support.ts`, covered by `src/lib/speech-support.test.ts`.
