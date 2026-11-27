@@ -1,14 +1,18 @@
-# Welcome to your Lovable project
+# Bolta Khata Balance
+
+Create a simple voice khata wed app in Hindi and English for shopkeepers.add a big microphone button on the screen.when.the user speaks a costomer name and amount like ramesh 200 rupees.autmatically add it to a clean list below with total balance calculation make buttons big and easy to use
 
 This project was built with [Lovable](https://lovable.dev).
 
+**Live app**: https://bolta-khata-balance.lovable.app
+
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/7fdcd706-c774-519a-a101-b104397d6e61).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +24,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
